@@ -103,9 +103,29 @@ const Product = {
     });
   },
 
+  // getSearchAll: (keyword, mycallback) => {
+  //   const sql = `SELECT * FROM db_product WHERE name LIKE '%${keyword}%' AND status='1' `;
+  //   conn.query(sql, function (err, products) {
+  //     if (err) {
+  //       mycallback(null);
+  //     } else {
+  //       mycallback(products);
+  //     }
+  //   });
+  // },
+
   getSearchAll: (keyword, mycallback) => {
-    const sql = `SELECT * FROM db_product WHERE name LIKE '%${keyword}%' AND status='1' `;
-    conn.query(sql, function (err, products) {
+    const sql = `
+      SELECT p.*, c.name AS category_name, b.name AS brand_name
+      FROM db_product p
+      JOIN db_category c ON p.category_id = c.id
+      JOIN db_brand b ON p.brand_id = b.id
+      WHERE p.name LIKE ? OR c.name LIKE ? OR b.name LIKE ?
+      AND p.status = 1
+    `;
+    const wildCardKeyword = `%${keyword}%`;
+  
+    conn.query(sql, [wildCardKeyword, wildCardKeyword, wildCardKeyword], (err, products) => {
       if (err) {
         mycallback(null);
       } else {
@@ -114,9 +134,30 @@ const Product = {
     });
   },
 
+  // getListProductSearch: async (keyword, limit, offset, mycallback) => {
+  //   const sql = `SELECT * FROM db_product WHERE status='1' AND name LIKE '%${keyword}%' ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`;
+  //   await conn.query(sql, function (err, products) {
+  //     if (err) {
+  //       mycallback(null);
+  //     } else {
+  //       mycallback(products);
+  //     }
+  //   });
+  // },
+
   getListProductSearch: async (keyword, limit, offset, mycallback) => {
-    const sql = `SELECT * FROM db_product WHERE status='1' AND name LIKE '%${keyword}%' ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`;
-    await conn.query(sql, function (err, products) {
+    const sql = `
+      SELECT p.*, c.name AS category_name, b.name AS brand_name
+      FROM db_product p
+      JOIN db_category c ON p.category_id = c.id
+      JOIN db_brand b ON p.brand_id = b.id
+      WHERE p.name LIKE ? OR c.name LIKE ? OR b.name LIKE ?
+      AND p.status = 1
+      ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}
+    `;
+    const wildCardKeyword = `%${keyword}%`;
+  
+    conn.query(sql, [wildCardKeyword, wildCardKeyword, wildCardKeyword], (err, products) => {
       if (err) {
         mycallback(null);
       } else {
